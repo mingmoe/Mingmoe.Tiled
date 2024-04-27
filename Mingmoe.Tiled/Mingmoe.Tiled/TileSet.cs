@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -43,6 +43,7 @@ public class Grid
     public int Hidht { get; set; } = 0;
 }
 
+[XmlType("tile")]
 public class Tile
 {
     [XmlAttribute("id")]
@@ -71,7 +72,7 @@ public class Tile
 /// <summary>
 /// 图块集
 /// </summary>
-[XmlRoot("tileset")]
+[XmlType("tileset")]
 public class TileSet
 {
     [XmlAttribute("firstgid")]
@@ -102,17 +103,36 @@ public class TileSet
     public string? Fillmode { get; set; } = null;
 
     [XmlElement("image")]
-    public Image? Image = null;
+    public Image? Image { get; set; } = null;
 
     [XmlElement("tileoffset")]
     public TileOffset? TileOffset { get; set; }
 
     [XmlElement("grid")]
-    public Grid? Grid = null;
+    public Grid? Grid { get; set; } = null;
 
     [XmlElement("transformations")]
-    public XmlNode? Transformations = null;
+    public XmlNode? Transformations { get; set; } = null;
 
     [XmlElement("wangsets")]
-    public XmlNode? Wangsets = null;
+    public XmlNode? Wangsets { get; set; } = null;
+
+    [XmlArray("tile")]
+    public Tile[] Tiles { get; set; } = [];
+
+    public (int x, int y) GetPositionOfTile(int id)
+    {
+        var row = (int)Math.Floor((double)id / Columns);
+        var line = id % Columns;
+
+        return (line * Tilewidth, row * Tileheight);
+    }
+
+    public static TileSet FromFile(string path)
+    {
+        XmlSerializer serializer = new(typeof(TileSet));
+
+        using var fs = File.OpenText(path);
+        return (TileSet)serializer.Deserialize(fs)!;
+    }
 }

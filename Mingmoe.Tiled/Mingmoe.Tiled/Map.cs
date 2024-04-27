@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -86,4 +86,14 @@ public class Map
 
     [XmlElement("tileset")]
     public TileSet[] Tilesets { get; set; } = [];
+
+
+    public static Map FromFile(string path)
+    {
+        XmlSerializer serializer = new(typeof(Map));
+
+        using var fs = File.OpenText(path);
+        return (Map)serializer.Deserialize(fs)!;
+    }
+
 }
